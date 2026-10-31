@@ -195,6 +195,7 @@ void setup()
 
     hal::begin();  // ค่าที่จำถาวร (NVS)
     hal::pcfBegin();
+    hal::adsBegin();
     Serial.printf("[BOOT] reset reason: %s\n", hal::resetReasonText());
     hal::ledBegin();
     hal::soundBegin();

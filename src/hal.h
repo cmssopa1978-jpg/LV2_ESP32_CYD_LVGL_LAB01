@@ -96,5 +96,18 @@ bool pcfSetAllLeds(uint8_t mask);
 uint8_t pcfLedMask();
 uint8_t pcfInputMask();
 uint8_t pcfAddress();
+bool pcfSetAddress(uint8_t address, bool save = true);
+uint8_t pcfScan(); // bit 0..7 correspond to I2C addresses 0x20..0x27
+
+// ---- ADS1115 four-channel ADC (I2C address 0x48..0x4B) ----
+void adsBegin();
+void adsPoll(uint32_t now);
+bool adsSetAddress(uint8_t address, bool save = true);
+uint8_t adsAddress();
+uint8_t adsScan(); // bit 0..3 correspond to I2C addresses 0x48..0x4B
+bool adsReady();
+int16_t adsRaw(uint8_t channel);
+float adsVoltage(uint8_t channel);
+bool adsChannelValid(uint8_t channel);
 
 }  // namespace hal

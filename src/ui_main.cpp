@@ -8,7 +8,66 @@
 
 namespace {
 
-lv_obj_t *gTabview = nullptr;
+struct ScreenDef {
+    const char *name;
+    void (*build)(lv_obj_t *);
+};
+
+const ScreenDef gScreens[] = {{"จอภาพ", ui_display_tab}, {"สัมผัส", ui_touch_tab}, {"PCF8574", ui_pcf_tab},
+                              {"ไฟ RGB", ui_led_tab}, {"เสียง", ui_sound_tab}, {"ระบบ", ui_system_tab}, {"ADS1115", ui_ads_tab}};
+lv_obj_t *gHome;
+lv_obj_t *gPages[sizeof(gScreens) / sizeof(gScreens[0])];
+
+void showHome(lv_event_t *)
+{
+    for (lv_obj_t *page : gPages) lv_obj_add_flag(page, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(gHome, LV_OBJ_FLAG_HIDDEN);
+}
+
+void showPage(lv_event_t *e)
+{
+    const uintptr_t index = reinterpret_cast<uintptr_t>(lv_event_get_user_data(e));
+    if (index >= sizeof(gScreens) / sizeof(gScreens[0])) return;
+    lv_obj_add_flag(gHome, LV_OBJ_FLAG_HIDDEN);
+    for (size_t i = 0; i < sizeof(gScreens) / sizeof(gScreens[0]); ++i) {
+        if (i == index) lv_obj_clear_flag(gPages[i], LV_OBJ_FLAG_HIDDEN);
+        else lv_obj_add_flag(gPages[i], LV_OBJ_FLAG_HIDDEN);
+    }
+}
+
+lv_obj_t *createPage(lv_obj_t *root, const ScreenDef &screen)
+{
+    lv_obj_t *page = lv_obj_create(root);
+    lv_obj_remove_style_all(page);
+    lv_obj_set_size(page, UI_W, UI_H);
+    lv_obj_set_pos(page, 0, 0);
+    lv_obj_set_style_bg_opa(page, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(page, lv_color_hex(0x101820), 0);
+    lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_t *header = lv_obj_create(page);
+    lv_obj_remove_style_all(header);
+    lv_obj_set_size(header, UI_W, 34);
+    lv_obj_set_pos(header, 0, 0);
+    lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
+    lv_obj_set_flex_align(header, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_hor(header, 6, 0);
+    lv_obj_clear_flag(header, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_t *back = ui_btn(header, "กลับ", showHome);
+    lv_obj_set_size(back, 72, 30);
+    ui_label(header, screen.name, &font_th_16, lv_palette_main(LV_PALETTE_CYAN));
+
+    lv_obj_t *content = lv_obj_create(page);
+    lv_obj_remove_style_all(content);
+    lv_obj_set_size(content, UI_W, UI_H - 34);
+    lv_obj_set_pos(content, 0, 34);
+    lv_obj_set_style_pad_all(content, 6, 0);
+    lv_obj_set_style_pad_row(content, 6, 0);
+    lv_obj_set_flex_flow(content, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_scrollbar_mode(content, LV_SCROLLBAR_MODE_ACTIVE);
+    screen.build(content);
+    return page;
+}
 
 void splashDone(lv_timer_t *t)
 {
@@ -41,26 +100,37 @@ void ui_init()
     lv_theme_t *th = lv_theme_default_init(disp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_CYAN), true, &font_th_16);
     lv_disp_set_theme(disp, th);
 
-    gTabview = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, UI_TAB_H);
-    // ปิดการปัดซ้าย-ขวาเพื่อเปลี่ยนแท็บ: ลากแถบเลื่อน/วาดเส้นจะได้ไม่เปลี่ยนแท็บโดยไม่ตั้งใจ (กดที่ชื่อแท็บแทน)
-    lv_obj_clear_flag(lv_tabview_get_content(gTabview), LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_t *root = lv_scr_act();
+    lv_obj_set_style_bg_color(root, lv_color_hex(0x101820), 0);
+    gHome = lv_obj_create(root);
+    lv_obj_remove_style_all(gHome);
+    lv_obj_set_size(gHome, UI_W, UI_H);
+    lv_obj_set_pos(gHome, 0, 0);
+    lv_obj_set_style_bg_opa(gHome, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(gHome, lv_color_hex(0x101820), 0);
+    lv_obj_set_style_pad_all(gHome, 8, 0);
+    lv_obj_set_style_pad_row(gHome, 5, 0);
+    lv_obj_set_flex_flow(gHome, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(gHome, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_clear_flag(gHome, LV_OBJ_FLAG_SCROLLABLE);
+    ui_label(gHome, "CYD MAIN MENU", &font_th_16, lv_palette_main(LV_PALETTE_CYAN));
+    ui_label(gHome, "เลือกหน้าจอที่ต้องการ", nullptr, lv_palette_lighten(LV_PALETTE_GREY, 2));
+    const size_t screenCount = sizeof(gScreens) / sizeof(gScreens[0]);
+    for (size_t rowIndex = 0; rowIndex < 3; ++rowIndex) {
+        lv_obj_t *row = ui_row(gHome);
+        lv_obj_set_style_pad_column(row, 6, 0);
+        for (size_t col = 0; col < 3; ++col) {
+            const size_t i = rowIndex * 3 + col;
+            if (i >= screenCount) break;
+            lv_obj_t *button = ui_btn(row, gScreens[i].name, showPage, reinterpret_cast<void *>(static_cast<uintptr_t>(i)));
+            lv_obj_set_size(button, 94, 46);
+            lv_obj_set_style_transform_zoom(button, 270, LV_STATE_PRESSED);
+        }
+    }
 
-    lv_obj_t *tabBtns = lv_tabview_get_tab_btns(gTabview);
-    lv_obj_set_style_text_font(tabBtns, &font_th_16, 0);
-    lv_obj_set_style_pad_all(tabBtns, 0, 0);
-
-    struct TabDef {
-        const char *name;
-        void (*build)(lv_obj_t *);
-    };
-    const TabDef tabs[] = {{"จอภาพ", ui_display_tab}, {"สัมผัส", ui_touch_tab}, {"PCF8574", ui_pcf_tab}, {"ไฟRGB", ui_led_tab}, {"เสียง", ui_sound_tab}, {"ระบบ", ui_system_tab}};
-    for (const TabDef &t : tabs) {
-        lv_obj_t *page = lv_tabview_add_tab(gTabview, t.name);
-        lv_obj_set_style_pad_all(page, 6, 0);
-        lv_obj_set_style_pad_row(page, 6, 0);
-        lv_obj_set_flex_flow(page, LV_FLEX_FLOW_COLUMN);
-        lv_obj_set_scrollbar_mode(page, LV_SCROLLBAR_MODE_ACTIVE);
-        t.build(page);
+    for (size_t i = 0; i < sizeof(gScreens) / sizeof(gScreens[0]); ++i) {
+        gPages[i] = createPage(root, gScreens[i]);
+        lv_obj_add_flag(gPages[i], LV_OBJ_FLAG_HIDDEN);
     }
 
     showSplash();

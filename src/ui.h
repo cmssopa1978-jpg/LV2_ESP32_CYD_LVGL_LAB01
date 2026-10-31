@@ -30,6 +30,7 @@ void ui_led_tab(lv_obj_t *tab);
 void ui_sound_tab(lv_obj_t *tab);
 void ui_system_tab(lv_obj_t *tab);
 void ui_pcf_tab(lv_obj_t *tab);
+void ui_ads_tab(lv_obj_t *tab);
 
 // ---- หน้าเต็มจอ (วางบน lv_layer_top ทับทุกอย่าง) ----
 void ui_calibrate_start(bool firstTime);

@@ -128,7 +128,7 @@ void ui_pcf_tab(lv_obj_t *tab)
     lv_obj_set_width(gAddressMenu, 124);
     lv_obj_add_event_cb(gAddressMenu, addressEvent, LV_EVENT_VALUE_CHANGED, nullptr);
     lv_obj_t *scanButton = ui_btn(addrRow, "Scan\nAddress", scanEvent);
-    lv_obj_set_size(scanButton, 78, 44);
+    lv_obj_set_size(scanButton, 100, 46);
     gScanResult = ui_label(card, "Scan เพื่อแสดง address ที่เชื่อมต่อ", nullptr, lv_palette_lighten(LV_PALETTE_GREY, 2));
     gStatus = ui_label(card, "กำลังเชื่อมต่อ...", &font_th_16, lv_palette_main(LV_PALETTE_CYAN));
 

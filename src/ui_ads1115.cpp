@@ -109,7 +109,7 @@ void ui_ads_tab(lv_obj_t *tab)
     lv_obj_set_width(gAddressMenu, 118);
     lv_obj_add_event_cb(gAddressMenu, addressEvent, LV_EVENT_VALUE_CHANGED, nullptr);
     lv_obj_t *scanButton = ui_btn(row, "Scan Address", scanEvent);
-    lv_obj_set_size(scanButton, 94, 40);
+    lv_obj_set_size(scanButton, 126, 44);
     gStatus = ui_label(tab, "Waiting for ADC...", &font_th_16, lv_palette_main(LV_PALETTE_CYAN));
     gResult = ui_label(tab, "", nullptr, lv_palette_lighten(LV_PALETTE_GREY, 2));
 

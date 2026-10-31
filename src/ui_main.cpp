@@ -50,12 +50,12 @@ lv_obj_t *createPage(lv_obj_t *root, const ScreenDef &screen)
     lv_obj_set_size(header, UI_W, 34);
     lv_obj_set_pos(header, 0, 0);
     lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(header, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_flex_align(header, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_hor(header, 6, 0);
     lv_obj_clear_flag(header, LV_OBJ_FLAG_SCROLLABLE);
+    ui_label(header, screen.name, &font_th_16, lv_palette_main(LV_PALETTE_CYAN));
     lv_obj_t *back = ui_btn(header, "กลับ", showHome);
     lv_obj_set_size(back, 72, 30);
-    ui_label(header, screen.name, &font_th_16, lv_palette_main(LV_PALETTE_CYAN));
 
     lv_obj_t *content = lv_obj_create(page);
     lv_obj_remove_style_all(content);

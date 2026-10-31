@@ -86,4 +86,15 @@ uint16_t soundNowHz();  // ความถี่ที่กำลังเล�
 uint8_t soundVolume();
 void soundSetVolume(uint8_t v, bool save = true);
 
+// ---- PCF8574 I2C expander (P0-P3 active-low LED sink, P4-P7 inputs) ----
+void pcfBegin();
+void pcfPoll(uint32_t now);
+bool pcfReady();
+bool pcfReadInputs(uint8_t &mask);
+bool pcfSetLed(uint8_t index, bool on);
+bool pcfSetAllLeds(uint8_t mask);
+uint8_t pcfLedMask();
+uint8_t pcfInputMask();
+uint8_t pcfAddress();
+
 }  // namespace hal

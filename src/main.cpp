@@ -194,6 +194,7 @@ void setup()
     Serial.printf("\n=== %s %s | LVGL %d.%d.%d ===\n", app::APP_NAME, app::FW_VERSION, LVGL_VERSION_MAJOR, LVGL_VERSION_MINOR, LVGL_VERSION_PATCH);
 
     hal::begin();  // ค่าที่จำถาวร (NVS)
+    hal::pcfBegin();
     Serial.printf("[BOOT] reset reason: %s\n", hal::resetReasonText());
     hal::ledBegin();
     hal::soundBegin();
